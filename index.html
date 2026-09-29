@@ -1,733 +1,462 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finn's World ⚔️</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>可以和我一起约会吗？</title>
 <style>
-/* ============ Pixel Font ============ */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Zpix&display=swap');
-
-/* ============ Reset & Base ============ */
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#1a1c2c;
-  --bg2:#262b44;
-  --surface:#333c57;
-  --card:#3a4466;
-  --border:#5d6f96;
-  --text:#f4f4f4;
-  --text-dim:#a0a8c0;
-  --green:#38b764;
-  --green-dark:#257953;
-  --blue:#29adff;
-  --yellow:#ffcd75;
-  --orange:#f77622;
-  --red:#e43b44;
-  --pink:#ff77a8;
-  --purple:#b55088;
-  --cyan:#73eff7;
-  --pixel-shadow:4px 4px 0px rgba(0,0,0,.4);
-  --pixel-font:'Press Start 2P', 'Zpix', monospace;
+  --bg1:#f6dde7;--bg2:#d6ebdd;--card:#f5f3f4;--ink:#1c1a1b;--sub:#6d6568;
+  --pink:#e25aa4;--pink-soft:#f9d3e6;--tile:#f5c7d5;--on-pink:#1c1a1b;--line:3px;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
-html{scroll-behavior:smooth;font-size:16px;image-rendering:pixelated}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg1:#2b1d25;--bg2:#17251d;--card:#231f21;--ink:#f3edf0;--sub:#b2a8ac;
+    --pink:#ee6db4;--pink-soft:#4d2a3d;--tile:#5b3646;--on-pink:#1c1a1b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg1:#2b1d25;--bg2:#17251d;--card:#231f21;--ink:#f3edf0;--sub:#b2a8ac;
+  --pink:#ee6db4;--pink-soft:#4d2a3d;--tile:#5b3646;--on-pink:#1c1a1b;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{
-  background:var(--bg);color:var(--text);
-  font-family:var(--pixel-font);
-  line-height:2;overflow-x:hidden;
-  cursor:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><rect width='4' height='4' x='6' y='6' fill='%23ffcd75'/><rect width='2' height='2' x='7' y='7' fill='%23fff'/></svg>") 8 8, auto;
+  margin:0;min-height:100%;color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","HarmonyOS Sans SC","MiSans","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  background:var(--bg1);
+  background:linear-gradient(160deg,var(--bg1) 0%,var(--bg1) 35%,var(--bg2) 100%);
+  background-attachment:fixed;
+  -webkit-tap-highlight-color:transparent;
 }
-a{color:var(--cyan);text-decoration:none}
-a:hover{color:var(--yellow)}
-::selection{background:var(--purple);color:#fff}
+.stage{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 16px 12px}
+.card{
+  position:relative;width:min(100%,440px);background:var(--card);
+  border:var(--line) solid var(--ink);border-radius:28px;box-shadow:6px 7px 0 var(--ink);
+  padding:44px 22px 30px;text-align:center;
+}
+.card[hidden]{display:none}
+.card.enter{animation:pop .38s cubic-bezier(.2,1.3,.4,1)}
+@keyframes pop{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:none}}
+.foot{margin-top:18px;font-size:12px;letter-spacing:.04em;color:var(--sub);opacity:.8}
 
-/* ============ Pixel Border Helper ============ */
-.pixel-border{
-  border:4px solid var(--border);
-  box-shadow:var(--pixel-shadow);
-  image-rendering:pixelated;
-}
-.pixel-border-accent{
-  border:4px solid var(--yellow);
-  box-shadow:4px 4px 0px rgba(0,0,0,.5);
-}
+.tile{width:128px;height:128px;margin:0 auto 22px;background:var(--tile);border:var(--line) solid var(--ink);border-radius:22px;box-shadow:4px 5px 0 var(--ink);display:grid;place-items:center}
+.tile.sm{width:96px;height:96px;border-radius:18px;margin-bottom:18px}
+.seal{width:84%;height:84%}
+.bob{animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px) rotate(-2deg)}}
 
-/* ============ Stars Background ============ */
-.stars{
-  position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(1px 1px at 10% 20%, var(--cyan) 50%, transparent 50%),
-    radial-gradient(1px 1px at 30% 60%, var(--yellow) 50%, transparent 50%),
-    radial-gradient(1px 1px at 50% 10%, #fff 50%, transparent 50%),
-    radial-gradient(1px 1px at 70% 80%, var(--cyan) 50%, transparent 50%),
-    radial-gradient(1px 1px at 90% 30%, #fff 50%, transparent 50%),
-    radial-gradient(1px 1px at 15% 90%, var(--yellow) 50%, transparent 50%),
-    radial-gradient(1px 1px at 85% 55%, #fff 50%, transparent 50%),
-    radial-gradient(1px 1px at 45% 45%, var(--cyan) 50%, transparent 50%),
-    radial-gradient(1px 1px at 65% 25%, #fff 50%, transparent 50%),
-    radial-gradient(1px 1px at 25% 75%, var(--yellow) 50%, transparent 50%),
-    radial-gradient(1px 1px at 55% 95%, #fff 50%, transparent 50%),
-    radial-gradient(1px 1px at 5% 50%, var(--cyan) 50%, transparent 50%),
-    radial-gradient(1px 1px at 95% 5%, var(--yellow) 50%, transparent 50%),
-    radial-gradient(1px 1px at 40% 35%, #fff 50%, transparent 50%),
-    radial-gradient(1px 1px at 75% 65%, var(--cyan) 50%, transparent 50%);
-  animation:twinkle 4s ease-in-out infinite alternate;
-}
-@keyframes twinkle{0%{opacity:.5}100%{opacity:1}}
+h1{margin:0 0 10px;font-size:clamp(25px,7vw,31px);line-height:1.25;font-weight:800;letter-spacing:.01em}
+h1.big{font-size:clamp(28px,8vw,36px)}
+.emo{font-size:30px;margin:2px 0 8px;letter-spacing:6px}
+.sub{margin:0 0 24px;color:var(--sub);font-size:14px;line-height:1.6}
 
-/* ============ Pixel Ground ============ */
-.ground{
-  position:fixed;bottom:0;left:0;right:0;height:60px;z-index:0;
-  background:
-    repeating-linear-gradient(90deg,
-      var(--green-dark) 0px, var(--green-dark) 16px,
-      var(--green) 16px, var(--green) 32px
-    );
-  border-top:4px solid var(--green);
+.btn{
+  font:inherit;font-weight:700;font-size:16px;color:var(--ink);cursor:pointer;
+  border:var(--line) solid var(--ink);border-radius:999px;background:var(--card);
+  box-shadow:3px 4px 0 var(--ink);padding:14px 26px;min-height:52px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  transition:transform .12s,box-shadow .12s,opacity .2s;touch-action:manipulation;user-select:none;-webkit-user-select:none;
 }
-.ground::before{
-  content:'';position:absolute;top:-16px;left:0;right:0;height:16px;
-  background:repeating-linear-gradient(90deg,
-    transparent 0px, transparent 12px,
-    var(--green) 12px, var(--green) 20px,
-    transparent 20px, transparent 32px
-  );
-}
+.btn.pink{background:var(--pink);color:var(--on-pink)}
+.btn:active:not(:disabled){transform:translate(3px,4px);box-shadow:0 0 0 var(--ink)}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn.wide{width:100%;margin-top:22px}
+.btn svg{width:18px;height:18px;flex:none}
+.btn:focus-visible,.opt:focus-visible,.field:focus-visible,.back:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
 
-/* ============ Nav (Game HUD) ============ */
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  padding:.8rem 1.5rem;
-  display:flex;justify-content:space-between;align-items:center;
-  background:rgba(26,28,44,.95);
-  border-bottom:4px solid var(--border);
-}
-.nav-hp{display:flex;align-items:center;gap:.5rem;font-size:.6rem}
-.heart{color:var(--red);font-size:.9rem;animation:heartbeat 1s infinite}
-@keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-.nav-links{display:flex;gap:1.5rem}
-.nav-links a{
-  color:var(--text-dim);font-size:.55rem;
-  transition:all .2s;padding:.3rem .6rem;
-  border:2px solid transparent;
-}
-.nav-links a:hover{
-  color:var(--yellow);border-color:var(--yellow);
-  background:rgba(255,205,117,.1);
-}
+.choice{position:relative;display:flex;gap:18px;justify-content:center;align-items:center;flex-wrap:wrap;min-height:70px}
+#yes{transition:transform .25s cubic-bezier(.2,1.4,.4,1),box-shadow .12s;min-width:136px;z-index:2}
+#noSlot{display:inline-block}
+#no{min-width:150px;white-space:nowrap;z-index:3}
+#no.flying{position:absolute;transition:left .22s ease,top .22s ease,transform .2s}
 
-/* ============ Hero ============ */
-.hero{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;
-  position:relative;z-index:1;padding:2rem;text-align:center;
-}
-.hero-content{
-  animation:slideUp .8s ease-out;
-  max-width:700px;
-}
-@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.back{position:absolute;left:16px;top:14px;width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+.back svg{width:18px;height:18px}
 
-.avatar-frame{
-  width:160px;height:160px;margin:0 auto 2rem;
-  border:6px solid var(--yellow);
-  box-shadow:6px 6px 0px rgba(0,0,0,.5), 0 0 30px rgba(255,205,117,.2);
-  background:var(--bg2);
-  position:relative;
-  image-rendering:pixelated;
-  overflow:hidden;
-  animation:float 3s ease-in-out infinite;
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left;margin-top:18px}
+.lbl{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;margin-bottom:8px}
+.lbl svg{width:17px;height:17px}
+.field{
+  width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--card);
+  border:var(--line) solid var(--ink);border-radius:16px;box-shadow:3px 4px 0 var(--ink);
+  padding:12px 12px;min-height:52px;-webkit-appearance:none;appearance:none;color-scheme:light dark;
 }
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.avatar-frame img{width:100%;height:100%;object-fit:cover;image-rendering:auto}
-.avatar-placeholder{
-  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-  font-size:4rem;background:linear-gradient(135deg,var(--purple),var(--blue));
-}
+select.field{background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 18px) 22px,calc(100% - 12px) 22px;background-size:6px 6px;background-repeat:no-repeat;padding-right:30px}
+.hint{grid-column:1/-1;font-size:13px;color:var(--sub);margin:4px 0 0}
 
-.hero h1{
-  font-size:clamp(1.5rem,4vw,2.5rem);
-  color:var(--yellow);
-  text-shadow:3px 3px 0px var(--orange), 6px 6px 0px rgba(0,0,0,.3);
-  margin-bottom:.8rem;
-  letter-spacing:.05em;
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.grid.three{grid-template-columns:repeat(3,1fr);gap:10px}
+.opt{
+  position:relative;font:inherit;color:var(--ink);text-align:left;cursor:pointer;
+  background:var(--card);border:var(--line) solid var(--ink);border-radius:18px;box-shadow:3px 4px 0 var(--ink);
+  padding:14px 38px 14px 14px;min-height:56px;display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600;
+  transition:transform .12s,box-shadow .12s,background .15s;touch-action:manipulation;
 }
-.hero .subtitle{
-  font-size:.7rem;color:var(--cyan);margin-bottom:1.5rem;
-  letter-spacing:.1em;
-}
+.opt svg.ic{width:20px;height:20px;flex:none}
+.opt.stack{flex-direction:column;align-items:flex-start;gap:10px;min-height:92px}
+.opt.stack svg.ic{width:26px;height:26px}
+.opt.food{flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 6px 12px;text-align:center;min-height:90px;font-size:14px}
+.opt.food .e{font-size:28px;line-height:1}
+.opt::after{content:"";position:absolute;right:12px;top:50%;width:18px;height:18px;margin-top:-9px;border:2.5px solid var(--ink);border-radius:5px;background:var(--card)}
+.opt.radio::after,.opt.stack::after,.opt.food::after{border-radius:50%}
+.opt.stack::after,.opt.food::after{top:12px;margin-top:0}
+.opt.food::after{width:15px;height:15px;right:8px;top:8px}
+.opt[aria-pressed="true"]{background:var(--pink-soft);transform:translate(2px,2px);box-shadow:1px 2px 0 var(--ink)}
+.opt[aria-pressed="true"]::after{background:var(--pink);box-shadow:inset 0 0 0 3px var(--card)}
+.still{margin:20px 0 0;font-size:14px;line-height:1.6;color:var(--sub)}
+.still b{color:var(--ink);font-weight:700}
 
-/* Dialog Box */
-.dialog-box{
-  background:var(--bg2);
-  border:4px solid var(--border);
-  box-shadow:var(--pixel-shadow);
-  padding:1.5rem 2rem;
-  text-align:left;
-  position:relative;
-  margin:2rem auto;max-width:550px;
-  font-size:.65rem;line-height:2.2;
-  color:var(--text-dim);
-}
-.dialog-box::before{
-  content:'▶';position:absolute;bottom:.5rem;right:1rem;
-  color:var(--yellow);animation:blink 1s step-end infinite;
-}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-.dialog-speaker{
-  position:absolute;top:-1rem;left:1rem;
-  background:var(--yellow);color:var(--bg);
-  padding:.2rem .8rem;font-size:.5rem;
-  border:2px solid var(--orange);
-}
+.ticket{margin:6px 0 4px;text-align:left;border:var(--line) dashed var(--ink);border-radius:18px;padding:6px 16px}
+.row{display:flex;gap:14px;padding:12px 0;border-bottom:2px dashed color-mix(in srgb,var(--ink) 25%,transparent);font-size:15px;line-height:1.5}
+.row:last-child{border-bottom:0}
+.row .k{flex:none;width:56px;color:var(--sub)}
+.row .v{font-weight:700}
+.actions{display:grid;gap:12px;margin-top:22px}
+.toast{min-height:20px;margin:12px 0 0;font-size:13px;color:var(--sub)}
 
-.tag-row{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem}
-.pixel-tag{
-  background:var(--surface);border:3px solid var(--border);
-  padding:.3rem .8rem;font-size:.5rem;
-  color:var(--cyan);
-  box-shadow:3px 3px 0px rgba(0,0,0,.3);
-  transition:all .15s;cursor:default;
-}
-.pixel-tag:hover{
-  border-color:var(--yellow);color:var(--yellow);
-  transform:translate(-2px,-2px);
-  box-shadow:5px 5px 0px rgba(0,0,0,.4);
-}
+.hearts{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10}
+.hearts span{position:absolute;bottom:-40px;font-size:22px;animation:rise 2.8s ease-in forwards}
+@keyframes rise{to{transform:translateY(-110vh) rotate(var(--r));opacity:0}}
 
-/* ============ Section ============ */
-section{
-  position:relative;z-index:1;
-  max-width:900px;margin:0 auto;
-  padding:5rem 1.5rem;
+@media (max-width:360px){
+  .card{padding:42px 16px 26px}
+  .grid.three{gap:8px}
+  .opt{font-size:14px}
+  .fields{grid-template-columns:1fr}
 }
-.section-header{
-  display:flex;align-items:center;gap:1rem;
-  margin-bottom:.5rem;
-}
-.section-header h2{
-  font-size:.9rem;color:var(--yellow);
-  text-shadow:2px 2px 0px rgba(0,0,0,.5);
-}
-.section-header::after{
-  content:'';flex:1;height:4px;
-  background:repeating-linear-gradient(90deg,var(--border) 0px,var(--border) 8px,transparent 8px,transparent 16px);
-}
-.section-desc{font-size:.55rem;color:var(--text-dim);margin-bottom:2.5rem}
-
-/* ============ Photo Gallery (MAIN FEATURE) ============ */
-.gallery-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-}
-.gallery-item{
-  position:relative;overflow:hidden;
-  border:4px solid var(--border);
-  box-shadow:var(--pixel-shadow);
-  background:var(--bg2);
-  aspect-ratio:1;
-  transition:all .2s;
-  cursor:pointer;
-}
-.gallery-item:hover{
-  border-color:var(--yellow);
-  transform:translate(-3px,-3px);
-  box-shadow:7px 7px 0px rgba(0,0,0,.5);
-  z-index:2;
-}
-.gallery-item.wide{grid-column:span 2;aspect-ratio:2/1}
-.gallery-item.tall{grid-row:span 2;aspect-ratio:1/2}
-
-.gallery-item img{
-  width:100%;height:100%;object-fit:cover;
-  image-rendering:auto;
-  transition:transform .3s;
-}
-.gallery-item:hover img{transform:scale(1.05)}
-
-.gallery-placeholder{
-  width:100%;height:100%;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  gap:.5rem;
-  background:linear-gradient(135deg,var(--surface),var(--bg2));
-}
-.gallery-placeholder .emoji{font-size:2.5rem}
-.gallery-placeholder .label{font-size:.45rem;color:var(--text-dim)}
-
-.gallery-item .photo-tag{
-  position:absolute;bottom:0;left:0;right:0;
-  background:rgba(26,28,44,.9);
-  padding:.4rem .6rem;
-  font-size:.4rem;color:var(--cyan);
-  transform:translateY(100%);transition:transform .2s;
-}
-.gallery-item:hover .photo-tag{transform:translateY(0)}
-
-/* ============ Quest Board (Experience) ============ */
-.quest-board{
-  background:var(--bg2);
-  border:4px solid var(--yellow);
-  box-shadow:6px 6px 0px rgba(0,0,0,.5);
-  padding:2rem;
-}
-.quest-title{
-  text-align:center;font-size:.7rem;
-  color:var(--yellow);margin-bottom:1.5rem;
-  text-shadow:2px 2px 0px rgba(0,0,0,.5);
-}
-.quest-item{
-  display:flex;gap:1rem;align-items:flex-start;
-  padding:1rem;margin-bottom:1rem;
-  background:var(--surface);
-  border:3px solid var(--border);
-  box-shadow:3px 3px 0px rgba(0,0,0,.3);
-  transition:all .2s;
-}
-.quest-item:hover{
-  border-color:var(--cyan);
-  transform:translate(-2px,-2px);
-  box-shadow:5px 5px 0px rgba(0,0,0,.4);
-}
-.quest-item:last-child{margin-bottom:0}
-.quest-icon{
-  font-size:1.5rem;flex-shrink:0;
-  width:48px;height:48px;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--bg);border:3px solid var(--border);
-}
-.quest-info{flex:1}
-.quest-info h3{font-size:.6rem;color:var(--yellow);margin-bottom:.3rem}
-.quest-info .quest-desc{font-size:.5rem;color:var(--text-dim);line-height:2}
-.quest-status{
-  font-size:.4rem;margin-top:.4rem;
-  padding:.2rem .5rem;display:inline-block;
-}
-.quest-status.active{background:var(--green);color:#fff}
-.quest-status.complete{background:var(--blue);color:#fff}
-
-/* ============ Hobby / Stats RPG Style ============ */
-.stat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.stat-card{
-  background:var(--bg2);
-  border:4px solid var(--border);
-  box-shadow:var(--pixel-shadow);
-  padding:1.5rem 1rem;
-  text-align:center;
-  transition:all .2s;
-}
-.stat-card:hover{
-  border-color:var(--yellow);
-  transform:translate(-2px,-2px);
-  box-shadow:6px 6px 0px rgba(0,0,0,.5);
-}
-.stat-card .stat-icon{font-size:2rem;margin-bottom:.8rem;display:block}
-.stat-card h3{font-size:.55rem;color:var(--yellow);margin-bottom:.5rem}
-.stat-card p{font-size:.45rem;color:var(--text-dim);line-height:2}
-
-/* Pixel bar */
-.pixel-bar{
-  height:12px;background:var(--bg);
-  border:2px solid var(--border);
-  margin-top:.6rem;overflow:hidden;
-  position:relative;
-}
-.pixel-bar-fill{
-  height:100%;transition:width 1s ease-out;
-  image-rendering:pixelated;
-}
-.pixel-bar-fill.green{background:repeating-linear-gradient(90deg,var(--green) 0px,var(--green) 4px,var(--green-dark) 4px,var(--green-dark) 8px)}
-.pixel-bar-fill.blue{background:repeating-linear-gradient(90deg,var(--blue) 0px,var(--blue) 4px,#1d8ac7 4px,#1d8ac7 8px)}
-.pixel-bar-fill.orange{background:repeating-linear-gradient(90deg,var(--orange) 0px,var(--orange) 4px,#c55a10 4px,#c55a10 8px)}
-.pixel-bar-fill.pink{background:repeating-linear-gradient(90deg,var(--pink) 0px,var(--pink) 4px,var(--purple) 4px,var(--purple) 8px)}
-
-/* ============ Footer ============ */
-footer{
-  text-align:center;padding:3rem 1.5rem 5rem;
-  position:relative;z-index:1;
-  font-size:.5rem;color:var(--text-dim);
-}
-footer .pixel-divider{
-  height:4px;margin:0 auto 1.5rem;max-width:300px;
-  background:repeating-linear-gradient(90deg,var(--border) 0px,var(--border) 8px,transparent 8px,transparent 16px);
-}
-footer a{margin:0 .8rem}
-
-/* ============ Scroll Reveal ============ */
-.reveal{opacity:0;transform:translateY(30px);transition:all .6s ease-out}
-.reveal.visible{opacity:1;transform:translateY(0)}
-
-/* ============ Responsive ============ */
-@media(max-width:768px){
-  .gallery-grid{grid-template-columns:repeat(2,1fr)}
-  .gallery-item.wide{grid-column:span 2}
-  .gallery-item.tall{grid-row:span 1;aspect-ratio:1}
-  .stat-cards{grid-template-columns:1fr}
-  .nav-links{display:none}
-  nav{justify-content:center}
-  .quest-item{flex-direction:column;align-items:center;text-align:center}
-}
-@media(max-width:480px){
-  .gallery-grid{grid-template-columns:1fr}
-  .gallery-item.wide{grid-column:span 1;aspect-ratio:1}
-  .hero h1{font-size:1.3rem}
-}
-
-/* ============ Lightbox ============ */
-.lightbox{
-  display:none;position:fixed;inset:0;z-index:200;
-  background:rgba(10,12,20,.95);
-  align-items:center;justify-content:center;
-  cursor:pointer;
-}
-.lightbox.active{display:flex}
-.lightbox img{
-  max-width:90%;max-height:85vh;
-  border:6px solid var(--yellow);
-  box-shadow:8px 8px 0px rgba(0,0,0,.6);
-  image-rendering:auto;
-}
-.lightbox-close{
-  position:absolute;top:1.5rem;right:1.5rem;
-  font-size:1rem;color:var(--yellow);
-  cursor:pointer;font-family:var(--pixel-font);
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
 }
 </style>
 </head>
 <body>
 
-<div class="stars"></div>
-<div class="ground"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01" stroke-width="2.6"/></g></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></g></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M10 4l1.6 4.4L16 10l-4.4 1.6L10 16l-1.6-4.4L4 10l4.4-1.6z"/><path d="M18 3v4M16 5h4M17.5 16.5v3M16 18h3" stroke-linecap="round"/></g></symbol>
+    <symbol id="i-fork" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3v7a2 2 0 0 0 2 2v9M10 3v7a2 2 0 0 1-2 2M8 3v6"/><path d="M17 21V3c-2.2 1.2-3 3.8-3 7v3h3"/></g></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-feet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3.5c2 0 3 2.5 3 5.5s-.8 4-3 4-3-1-3-4 1-5.5 3-5.5zM4.5 16h5v1.5a2.5 2.5 0 0 1-5 0z"/><path d="M17 6c2 0 3 2.5 3 5.5s-.8 4-3 4-3-1-3-4 1-5.5 3-5.5zM14.5 18.5h5V20a2.5 2.5 0 0 1-5 0z"/></g></symbol>
+    <symbol id="i-film" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M4 10l-.6-3.2L18.5 4l.6 3.2z"/><path d="M8.5 5.8l2 3M13.5 4.9l2 3" stroke-linecap="round"/></g></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h11v8H8l-4 3z"/><path d="M15 8h5v9l-3.5-2.5H10V12"/></g></symbol>
+    <symbol id="seal" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="108" rx="36" ry="5" fill="#000" opacity=".1"/>
+      <path d="M86 98c10 1 18-3 22-11-1 10-9 17-19 18z" fill="#fbf7f2" stroke="#1c1a1b" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M26 104C19 76 27 26 60 24c33 2 41 52 34 80z" fill="#fbf7f2" stroke="#1c1a1b" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="48" cy="47" r="5" fill="#1c1a1b"/><circle cx="49.8" cy="45.2" r="1.7" fill="#fff"/>
+      <circle cx="72" cy="47" r="5" fill="#1c1a1b"/><circle cx="73.8" cy="45.2" r="1.7" fill="#fff"/>
+      <ellipse cx="41" cy="57" rx="5.5" ry="3.2" fill="#f5a3ba"/><ellipse cx="79" cy="57" rx="5.5" ry="3.2" fill="#f5a3ba"/>
+      <ellipse cx="60" cy="54" rx="3" ry="2.1" fill="#1c1a1b"/>
+      <path d="M55 58.5q2.5 3.2 5 0q2.5 3.2 5 0" fill="none" stroke="#1c1a1b" stroke-width="2" stroke-linecap="round"/>
+      <path d="M50 56h-9M50 59l-8 2M70 56h9M70 59l8 2" stroke="#1c1a1b" stroke-width="1.4" stroke-linecap="round" opacity=".55"/>
+      <path d="M60 94C45 85 45 70 53 70c3 0 5.5 2 7 4.5 1.5-2.5 4-4.5 7-4.5 8 0 8 15-7 24z" fill="#f2708f" stroke="#1c1a1b" stroke-width="3" stroke-linejoin="round"/>
+      <ellipse cx="45" cy="82" rx="8" ry="5.5" transform="rotate(-35 45 82)" fill="#fbf7f2" stroke="#1c1a1b" stroke-width="3"/>
+      <ellipse cx="75" cy="82" rx="8" ry="5.5" transform="rotate(35 75 82)" fill="#fbf7f2" stroke="#1c1a1b" stroke-width="3"/>
+    </symbol>
+  </defs>
+</svg>
 
-<!-- Nav HUD -->
-<nav>
-  <div class="nav-hp">
-    <span class="heart">❤️</span>
-    <span class="heart">❤️</span>
-    <span class="heart">❤️</span>
-    <span style="margin-left:.3rem">Finn</span>
-  </div>
-  <div class="nav-links">
-    <a href="#gallery">📸 相册</a>
-    <a href="#quests">⚔️ 冒险</a>
-    <a href="#stats">📊 属性</a>
-  </div>
-</nav>
+<main class="stage">
 
-<!-- Hero -->
-<section class="hero">
-  <div class="hero-content">
-    <div class="avatar-frame">
-      <!-- 替换为你的照片：<img src="your-photo.jpg" alt="Finn"> -->
-      <div class="avatar-placeholder">🧙‍♂️</div>
+  <!-- 1. 邀请 -->
+  <section class="card" id="s-ask">
+    <div class="tile"><svg class="seal bob"><use href="#seal"/></svg></div>
+    <h1 class="big">可以和我一起约会吗？</h1>
+    <div class="emo" aria-hidden="true">🥺🫶</div>
+    <p class="sub">不急，慢慢选（反正答案只有一个）</p>
+    <div class="choice" id="choice">
+      <button class="btn pink" id="yes">愿意 <svg><use href="#i-heart"/></svg></button>
+      <span id="noSlot"><button class="btn" id="no">不要 no no no</button></span>
     </div>
-    
-    <h1>FINN'S WORLD</h1>
-    <p class="subtitle">— PRESS START —</p>
-    
-    <div class="dialog-box">
-      <div class="dialog-speaker">FINN</div>
-      嘿！欢迎来到我的像素世界。<br>
-      一个在上海生活的 ENTP，<br>
-      喜欢挑战有趣的事物，<br>
-      不管是岩壁上的路线还是屏幕里的关卡。
-    </div>
-    
-    <div class="tag-row">
-      <span class="pixel-tag">⚡ ENTP</span>
-      <span class="pixel-tag">📍 上海</span>
-      <span class="pixel-tag">🧗 攀岩</span>
-      <span class="pixel-tag">🎮 游戏</span>
-      <span class="pixel-tag">💪 健身</span>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- Photo Gallery -->
-<section id="gallery">
-  <div class="reveal">
-    <div class="section-header">
-      <h2>📸 冒险相册</h2>
-    </div>
-    <p class="section-desc">GALLERY — 生活中的像素</p>
-  </div>
-  
-  <div class="gallery-grid">
-    <div class="gallery-item wide reveal">
-      <!-- 替换：<img src="photo1.jpg" alt="description"> -->
-      <div class="gallery-placeholder">
-        <span class="emoji">🧗</span>
-        <span class="label">攀岩照片</span>
-      </div>
-      <div class="photo-tag">🧗 征服岩壁</div>
-    </div>
-    
-    <div class="gallery-item reveal">
-      <div class="gallery-placeholder">
-        <span class="emoji">🌆</span>
-        <span class="label">城市风景</span>
-      </div>
-      <div class="photo-tag">🌆 上海日落</div>
-    </div>
-    
-    <div class="gallery-item reveal">
-      <div class="gallery-placeholder">
-        <span class="emoji">💪</span>
-        <span class="label">健身日常</span>
-      </div>
-      <div class="photo-tag">💪 今日训练</div>
-    </div>
-    
-    <div class="gallery-item reveal">
-      <div class="gallery-placeholder">
-        <span class="emoji">🎮</span>
-        <span class="label">游戏时刻</span>
-      </div>
-      <div class="photo-tag">🎮 沉浸体验</div>
-    </div>
-    
-    <div class="gallery-item tall reveal">
-      <div class="gallery-placeholder">
-        <span class="emoji">🏔️</span>
-        <span class="label">户外探索</span>
-      </div>
-      <div class="photo-tag">🏔️ 向上攀登</div>
-    </div>
-    
-    <div class="gallery-item reveal">
-      <div class="gallery-placeholder">
-        <span class="emoji">🍜</span>
-        <span class="label">美食探店</span>
-      </div>
-      <div class="photo-tag">🍜 觅食中</div>
-    </div>
-    
-    <div class="gallery-item reveal">
-      <div class="gallery-placeholder">
-        <span class="emoji">🎸</span>
-        <span class="label">随手记录</span>
-      </div>
-      <div class="photo-tag">🎸 生活碎片</div>
-    </div>
-    
-    <div class="gallery-item wide reveal">
-      <div class="gallery-placeholder">
-        <span class="emoji">🌊</span>
-        <span class="label">旅行记忆</span>
-      </div>
-      <div class="photo-tag">🌊 远方的风</div>
-    </div>
-  </div>
-</section>
+  <!-- 2. 确认 -->
+  <section class="card" id="s-sure" hidden>
+    <div class="tile sm"><svg class="seal"><use href="#seal"/></svg></div>
+    <h1>等一下，<br>你真的点了吗？<br>你真的愿意吗？</h1>
+    <div class="emo" aria-hidden="true">😭？？</div>
+    <p class="sub">我都已经准备好你点不要了</p>
+    <button class="btn pink" data-next="s-when">好啦好啦 <svg><use href="#i-arrow"/></svg></button>
+  </section>
 
-<!-- Quests (Experience) -->
-<section id="quests">
-  <div class="reveal">
-    <div class="section-header">
-      <h2>⚔️ 冒险日志</h2>
-    </div>
-    <p class="section-desc">QUEST LOG — 已接受的任务</p>
-  </div>
-  
-  <div class="quest-board reveal">
-    <div class="quest-title">— 任 务 面 板 —</div>
-    
-    <div class="quest-item">
-      <div class="quest-icon">⚔️</div>
-      <div class="quest-info">
-        <h3>主线任务：游戏设计师</h3>
-        <p class="quest-desc">在魔法工坊中用数据和概率编织玩家体验。每天和数字打交道，让游戏世界的规则变得「刚刚好」。</p>
-        <span class="quest-status active">进行中</span>
+  <!-- 3. 日期时间 -->
+  <section class="card" id="s-when" hidden>
+    <button class="back" aria-label="返回"><svg><use href="#i-back"/></svg></button>
+    <h1>所以什么时候能见到你？</h1>
+    <div class="fields">
+      <div>
+        <label class="lbl" for="date"><svg><use href="#i-cal"/></svg>见面日期</label>
+        <input class="field" type="date" id="date">
       </div>
-    </div>
-    
-    <div class="quest-item">
-      <div class="quest-icon">🧗</div>
-      <div class="quest-info">
-        <h3>支线任务：征服岩壁</h3>
-        <p class="quest-desc">每条攀岩线路都是一道身体解谜。力量、技巧、心态缺一不可。持续解锁更高难度。</p>
-        <span class="quest-status active">进行中</span>
+      <div>
+        <label class="lbl" for="time"><svg><use href="#i-clock"/></svg>见面时间</label>
+        <select class="field" id="time"><option value="">选个时间</option></select>
       </div>
+      <p class="hint">10:00 到 22:00，都等你</p>
     </div>
+    <button class="btn pink wide" id="whenNext" data-next="s-alt" disabled>就这天 <svg><use href="#i-arrow"/></svg></button>
+  </section>
 
-    <div class="quest-item">
-      <div class="quest-icon">💪</div>
-      <div class="quest-info">
-        <h3>日常任务：体能修炼</h3>
-        <p class="quest-desc">保持身体在最佳状态。力量训练是日常，数据追踪是职业病。</p>
-        <span class="quest-status active">每日刷新</span>
-      </div>
-    </div>
-    
-    <div class="quest-item">
-      <div class="quest-icon">🌍</div>
-      <div class="quest-info">
-        <h3>探索任务：丈量世界</h3>
-        <p class="quest-desc">去没去过的地方，吃没吃过的东西，玩没玩过的游戏。好奇心是最好的装备。</p>
-        <span class="quest-status active">永久任务</span>
-      </div>
-    </div>
-  </div>
-</section>
+  <!-- 4. 备选时间 -->
+  <section class="card" id="s-alt" hidden>
+    <button class="back" aria-label="返回"><svg><use href="#i-back"/></svg></button>
+    <h1>万一那天有变，<br>这些时候也行吗？</h1>
+    <p class="sub" style="margin:0">可以多选，也可以都不选</p>
+    <div class="grid" id="altGrid" data-mode="multi" data-key="alt"></div>
+    <p class="still">见面时间仍是<br><b id="stillWhen"></b></p>
+    <button class="btn pink wide" data-next="s-how">暗示给你了 <svg><use href="#i-arrow"/></svg></button>
+  </section>
 
-<!-- Stats -->
-<section id="stats">
-  <div class="reveal">
-    <div class="section-header">
-      <h2>📊 角色属性</h2>
-    </div>
-    <p class="section-desc">CHARACTER STATS</p>
-  </div>
-  
-  <div class="stat-cards">
-    <div class="stat-card reveal">
-      <span class="stat-icon">🧗</span>
-      <h3>攀岩</h3>
-      <p>抱石 + 先锋<br>持续进阶中</p>
-      <div class="pixel-bar"><div class="pixel-bar-fill green" data-width="65"></div></div>
-    </div>
-    
-    <div class="stat-card reveal">
-      <span class="stat-icon">💪</span>
-      <h3>力量</h3>
-      <p>系统训练<br>从不间断</p>
-      <div class="pixel-bar"><div class="pixel-bar-fill orange" data-width="75"></div></div>
-    </div>
-    
-    <div class="stat-card reveal">
-      <span class="stat-icon">🎮</span>
-      <h3>游戏</h3>
-      <p>RPG · 动作<br>什么都玩</p>
-      <div class="pixel-bar"><div class="pixel-bar-fill blue" data-width="90"></div></div>
-    </div>
-    
-    <div class="stat-card reveal">
-      <span class="stat-icon">🧠</span>
-      <h3>好奇心</h3>
-      <p>跨领域涉猎<br>永远在学</p>
-      <div class="pixel-bar"><div class="pixel-bar-fill pink" data-width="95"></div></div>
-    </div>
-    
-    <div class="stat-card reveal">
-      <span class="stat-icon">💬</span>
-      <h3>社交</h3>
-      <p>聚会活跃分子<br>什么都能聊</p>
-      <div class="pixel-bar"><div class="pixel-bar-fill green" data-width="85"></div></div>
-    </div>
-    
-    <div class="stat-card reveal">
-      <span class="stat-icon">🔥</span>
-      <h3>精力</h3>
-      <p>精力充沛<br>闲不下来</p>
-      <div class="pixel-bar"><div class="pixel-bar-fill orange" data-width="88"></div></div>
-    </div>
-  </div>
-</section>
+  <!-- 5. 怎么见 -->
+  <section class="card" id="s-how" hidden>
+    <button class="back" aria-label="返回"><svg><use href="#i-back"/></svg></button>
+    <h1>那天想怎么见面？</h1>
+    <div class="grid" id="howGrid" data-mode="single" data-key="how"></div>
+    <button class="btn pink wide" id="howNext" data-next="s-food" disabled>就这样见面吧 <svg><use href="#i-arrow"/></svg></button>
+  </section>
 
-<!-- Footer -->
-<footer>
-  <div class="pixel-divider"></div>
-  <p>
-    <a href="#">📧 联系</a>
-    <a href="#">🐙 GitHub</a>
-  </p>
-  <br>
-  <p>GAME SAVED ✦ 2026</p>
-  <p style="margin-top:.5rem;font-size:.4rem;color:var(--surface)">Built with pixels and potions</p>
-</footer>
+  <!-- 6. 吃什么 -->
+  <section class="card" id="s-food" hidden>
+    <button class="back" aria-label="返回"><svg><use href="#i-back"/></svg></button>
+    <h1>我们吃点什么？</h1>
+    <div class="grid three" id="foodGrid" data-mode="single" data-key="food"></div>
+    <button class="btn pink wide" id="foodNext" data-next="s-done" disabled>就吃这个 <svg><use href="#i-arrow"/></svg></button>
+  </section>
 
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox">
-  <div class="lightbox-close">✕ ESC</div>
-  <img src="" alt="">
-</div>
+  <!-- 7. 完成 -->
+  <section class="card" id="s-done" hidden>
+    <div class="tile sm"><svg class="seal bob"><use href="#seal"/></svg></div>
+    <h1>约好啦！</h1>
+    <p class="sub" style="margin-bottom:14px">不许反悔，我已经开始期待了</p>
+    <div class="ticket" id="ticket"></div>
+    <div class="actions">
+      <button class="btn pink" id="copy">复制结果发给我</button>
+      <button class="btn" id="again">重新选一遍</button>
+    </div>
+    <p class="toast" id="toast" role="status">也可以直接截图这一页发我</p>
+  </section>
+
+  <p class="foot">made for the two of us</p>
+</main>
+
+<div class="hearts" id="hearts" aria-hidden="true"></div>
 
 <script>
-/* ============ Scroll Reveal ============ */
-const reveals = document.querySelectorAll('.reveal');
-const obs = new IntersectionObserver(entries => {
-  entries.forEach((e, i) => {
-    if (e.isIntersecting) {
-      setTimeout(() => e.target.classList.add('visible'), i * 80);
-      obs.unobserve(e.target);
+(function(){
+  var $ = function(s){return document.querySelector(s)};
+  var state = {date:'', time:'', alt:[], how:'', food:''};
+  var history = [];
+  var current = 's-ask';
+
+  var ALT = [
+    ['i-clock','今天晚上'],['i-cal','明天'],['i-cal','这个周末'],['i-heart','你来定'],
+    ['i-spark','午后'],['i-spark','傍晚'],['i-fork','晚饭后'],['i-star','夜一点也行']
+  ];
+  var HOW = [
+    ['i-feet','轻松散步'],['i-fork','吃点好吃的'],['i-film','看电影不说话也行'],
+    ['i-chat','找个地方慢慢聊'],['i-heart','有点暧昧'],['i-spark','像第一次约会']
+  ];
+  var FOOD = [
+    ['🍣','日料'],['🥩','烤肉'],['🥟','粤菜'],['🍲','火锅'],['🍢','烧烤'],
+    ['🖤','黑珍珠'],['⭐','米其林'],['🍝','西餐'],['🍰','甜品咖啡']
+  ];
+
+  // ---------- navigation ----------
+  function go(id, isBack){
+    if(id === current) return;
+    if(!isBack) history.push(current);
+    document.getElementById(current).hidden = true;
+    var el = document.getElementById(id);
+    el.hidden = false;
+    el.classList.remove('enter'); void el.offsetWidth; el.classList.add('enter');
+    current = id;
+    if(id === 's-alt') $('#stillWhen').textContent = fmtWhen();
+    if(id === 's-done'){ renderTicket(); burst(); }
+    window.scrollTo(0,0);
+  }
+  document.addEventListener('click', function(e){
+    var n = e.target.closest('[data-next]');
+    if(n && !n.disabled){ go(n.getAttribute('data-next')); return; }
+    if(e.target.closest('.back')){ var prev = history.pop(); if(prev) go(prev, true); }
+  });
+
+  // ---------- step 1: the runaway "no" ----------
+  var yes = $('#yes'), no = $('#no'), slot = $('#noSlot'), card = $('#s-ask');
+  var tries = 0, lastDodge = 0;
+  var NO_TEXT = ['不要 no no no','真的不要吗？','再想想嘛','点不到的～','别挣扎啦','只能点愿意哦','愿意吧愿意吧'];
+  function dodge(e){
+    if(e){ e.preventDefault(); e.stopPropagation(); }
+    var t = Date.now();
+    if(t - lastDodge < 280) return;
+    lastDodge = t;
+    tries++;
+    no.textContent = NO_TEXT[Math.min(tries, NO_TEXT.length-1)];
+    if(!no.classList.contains('flying')){
+      slot.style.width = no.offsetWidth + 'px';
+      slot.style.height = no.offsetHeight + 'px';
+      var c0 = card.getBoundingClientRect(), b0 = no.getBoundingClientRect();
+      no.style.left = (b0.left - c0.left) + 'px';
+      no.style.top = (b0.top - c0.top) + 'px';
+      card.appendChild(no);
+      no.classList.add('flying');
+      void no.offsetWidth;
     }
-  });
-}, { threshold: 0.1 });
-reveals.forEach(el => obs.observe(el));
-
-/* ============ Pixel Bar Animation ============ */
-const bars = document.querySelectorAll('.pixel-bar-fill');
-const barObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.style.width = e.target.dataset.width + '%';
-      barObs.unobserve(e.target);
+    var cw = card.clientWidth, ch = card.clientHeight;
+    var bw = no.offsetWidth, bh = no.offsetHeight, pad = 14;
+    var cr = card.getBoundingClientRect(), yr = yes.getBoundingClientRect();
+    var ybox = {l:yr.left-cr.left-16, t:yr.top-cr.top-16, r:yr.right-cr.left+16, b:yr.bottom-cr.top+16};
+    var curL = parseFloat(no.style.left)||0, curT = parseFloat(no.style.top)||0;
+    var x, y, ok = false;
+    for(var i=0;i<40 && !ok;i++){
+      x = pad + Math.random()*Math.max(1, cw - bw - pad*2);
+      y = pad + Math.random()*Math.max(1, ch - bh - pad*2);
+      var hitYes = !(x+bw < ybox.l || x > ybox.r || y+bh < ybox.t || y > ybox.b);
+      var far = Math.abs(x-curL) + Math.abs(y-curT) > 90;
+      ok = !hitYes && far;
     }
-  });
-}, { threshold: 0.5 });
-bars.forEach(b => { b.style.width = '0%'; barObs.observe(b); });
+    no.style.left = x + 'px'; no.style.top = y + 'px';
+    var shrink = Math.max(.7, 1 - tries*0.04);
+    no.style.transform = 'scale(' + shrink + ')';
+    yes.style.transform = 'scale(' + Math.min(1.45, 1 + tries*0.07) + ')';
+  }
+  no.addEventListener('pointerenter', function(e){ if(e.pointerType === 'mouse') dodge(); });
+  no.addEventListener('pointerdown', dodge);
+  no.addEventListener('touchstart', dodge, {passive:false});
+  no.addEventListener('click', dodge);
+  no.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' ') dodge(e); });
+  yes.addEventListener('click', function(){ go('s-sure'); });
 
-/* ============ Lightbox ============ */
-const lightbox = document.getElementById('lightbox');
-const lbImg = lightbox.querySelector('img');
+  // ---------- step 3: date & time ----------
+  var dateEl = $('#date'), timeEl = $('#time');
+  var now = new Date();
+  function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  dateEl.min = ymd(now);
+  for(var h=10; h<=22; h++){
+    ['00','30'].forEach(function(m){
+      if(h===22 && m==='30') return;
+      var o = document.createElement('option');
+      o.value = o.textContent = String(h).padStart(2,'0')+':'+m;
+      timeEl.appendChild(o);
+    });
+  }
+  function checkWhen(){
+    state.date = dateEl.value; state.time = timeEl.value;
+    $('#whenNext').disabled = !(state.date && state.time);
+  }
+  dateEl.addEventListener('input', checkWhen); dateEl.addEventListener('change', checkWhen);
+  timeEl.addEventListener('change', checkWhen);
 
-document.querySelectorAll('.gallery-item img').forEach(img => {
-  img.addEventListener('click', () => {
-    lbImg.src = img.src;
-    lightbox.classList.add('active');
-  });
-});
+  function fmtWhen(){
+    if(!state.date) return '';
+    var p = state.date.split('-'), d = new Date(+p[0], +p[1]-1, +p[2]);
+    var wk = '日一二三四五六'[d.getDay()];
+    return (+p[1]) + '月' + (+p[2]) + '日 周' + wk + ' ' + state.time;
+  }
 
-lightbox.addEventListener('click', () => lightbox.classList.remove('active'));
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') lightbox.classList.remove('active');
-});
-
-/* ============ Dialog Typewriter ============ */
-const dialogBox = document.querySelector('.dialog-box');
-if (dialogBox) {
-  const original = dialogBox.innerHTML;
-  const speaker = dialogBox.querySelector('.dialog-speaker');
-  const speakerHTML = speaker ? speaker.outerHTML : '';
-  const textContent = dialogBox.textContent.replace('FINN', '').replace('▶', '').trim();
-  
-  // Simple: just show it. The CSS ▶ blink handles the "typing done" feel.
-}
-
-/* ============ Nav active on scroll ============ */
-window.addEventListener('scroll', () => {
-  const scrollY = window.scrollY;
-  document.querySelectorAll('.nav-links a').forEach(a => {
-    const href = a.getAttribute('href');
-    const sec = document.querySelector(href);
-    if (sec) {
-      const top = sec.offsetTop - 100;
-      const bot = top + sec.offsetHeight;
-      if (scrollY >= top && scrollY < bot) {
-        a.style.color = 'var(--yellow)';
-        a.style.borderColor = 'var(--yellow)';
+  // ---------- option grids ----------
+  function build(gridId, items, kind, nextBtn){
+    var grid = document.getElementById(gridId);
+    var mode = grid.getAttribute('data-mode'), key = grid.getAttribute('data-key');
+    items.forEach(function(it){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'opt ' + (kind||'') + (mode==='single' ? ' radio' : '');
+      b.setAttribute('aria-pressed','false');
+      b.dataset.v = it[1];
+      if(kind === 'food'){
+        b.innerHTML = '<span class="e" aria-hidden="true">'+it[0]+'</span><span></span>';
+        b.lastChild.textContent = it[1];
       } else {
-        a.style.color = '';
-        a.style.borderColor = 'transparent';
+        b.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#'+it[0]+'"/></svg><span></span>';
+        b.lastChild.textContent = it[1];
       }
+      b.addEventListener('click', function(){
+        if(mode === 'multi'){
+          var on = b.getAttribute('aria-pressed') !== 'true';
+          b.setAttribute('aria-pressed', on);
+          state[key] = [].filter.call(grid.children, function(x){return x.getAttribute('aria-pressed')==='true'}).map(function(x){return x.dataset.v});
+        } else {
+          [].forEach.call(grid.children, function(x){ x.setAttribute('aria-pressed','false'); });
+          b.setAttribute('aria-pressed','true');
+          state[key] = b.dataset.v;
+          if(nextBtn) $(nextBtn).disabled = false;
+        }
+      });
+      grid.appendChild(b);
+    });
+  }
+  build('altGrid', ALT, '', null);
+  build('howGrid', HOW, 'stack', '#howNext');
+  build('foodGrid', FOOD, 'food', '#foodNext');
+
+  // ---------- done ----------
+  function rows(){
+    var r = [['见面', fmtWhen()]];
+    if(state.alt.length) r.push(['也可以', state.alt.join('、')]);
+    r.push(['怎么见', state.how], ['吃什么', state.food]);
+    return r;
+  }
+  function renderTicket(){
+    var t = $('#ticket'); t.innerHTML = '';
+    rows().forEach(function(x){
+      var d = document.createElement('div'); d.className = 'row';
+      var k = document.createElement('span'); k.className='k'; k.textContent = x[0];
+      var v = document.createElement('span'); v.className='v'; v.textContent = x[1];
+      d.appendChild(k); d.appendChild(v); t.appendChild(d);
+    });
+    $('#toast').textContent = '也可以直接截图这一页发我';
+  }
+  function copyText(txt){
+    if(navigator.clipboard && window.isSecureContext){
+      return navigator.clipboard.writeText(txt).catch(function(){ return legacy(txt); });
     }
+    return legacy(txt);
+  }
+  function legacy(txt){
+    return new Promise(function(res, rej){
+      var ta = document.createElement('textarea');
+      ta.value = txt; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, 99999);
+      var ok = false; try{ ok = document.execCommand('copy'); }catch(e){}
+      document.body.removeChild(ta); ok ? res() : rej();
+    });
+  }
+  $('#copy').addEventListener('click', function(){
+    var txt = '我愿意！🫶\n' + rows().map(function(x){return x[0]+'：'+x[1]}).join('\n');
+    copyText(txt).then(function(){
+      $('#toast').textContent = '已复制，去粘贴给我吧';
+    }, function(){
+      $('#toast').textContent = '复制没成功，截图这一页发我也一样';
+    });
   });
-});
-
-/* ============ Smooth Scroll ============ */
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    e.preventDefault();
-    document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+  $('#again').addEventListener('click', function(){
+    history = ['s-ask','s-sure'];
+    go('s-when', true);
   });
-});
 
-/* ============ Random star flicker ============ */
-const starsEl = document.querySelector('.stars');
-setInterval(() => {
-  starsEl.style.backgroundPositionX = Math.random() * 2 + 'px';
-}, 3000);
+  function burst(){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var box = $('#hearts'), set = ['💗','💕','🩷','✨','💞'];
+    for(var i=0;i<22;i++){
+      var s = document.createElement('span');
+      s.textContent = set[i % set.length];
+      s.style.left = (Math.random()*100) + 'vw';
+      s.style.animationDelay = (Math.random()*0.9) + 's';
+      s.style.fontSize = (16 + Math.random()*16) + 'px';
+      s.style.setProperty('--r', (Math.random()*80-40) + 'deg');
+      box.appendChild(s);
+    }
+    setTimeout(function(){ box.innerHTML=''; }, 4200);
+  }
+})();
 </script>
 </body>
 </html>
